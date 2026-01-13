@@ -8,6 +8,6 @@ import com.order.domain.valueobject.OrderStatus;
 public class InvalidOrderStatusTransitionException extends DomainException {
     
     public InvalidOrderStatusTransitionException(OrderStatus from, OrderStatus to) {
-        super(String.format("Transição de status inválida: %s → %s", from, to));
+        super("Transição de status inválida: %s → %s".formatted(from, to));
     }
 }

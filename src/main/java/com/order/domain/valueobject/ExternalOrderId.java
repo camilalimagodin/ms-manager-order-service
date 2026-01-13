@@ -45,7 +45,7 @@ public final class ExternalOrderId {
         
         if (trimmedValue.length() > MAX_LENGTH) {
             throw new InvalidExternalOrderIdException(
-                String.format("ExternalOrderId não pode exceder %d caracteres: %d", 
+                "ExternalOrderId não pode exceder %d caracteres: %d".formatted(
                     MAX_LENGTH, trimmedValue.length())
             );
         }

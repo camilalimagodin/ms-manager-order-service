@@ -33,7 +33,7 @@ public final class ProductId {
         
         if (trimmedValue.length() > MAX_LENGTH) {
             throw new InvalidProductIdException(
-                String.format("ProductId não pode exceder %d caracteres", MAX_LENGTH)
+                "ProductId não pode exceder %d caracteres".formatted(MAX_LENGTH)
             );
         }
         

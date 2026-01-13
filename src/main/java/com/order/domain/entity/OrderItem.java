@@ -90,7 +90,7 @@ public class OrderItem {
     
     @Override
     public String toString() {
-        return String.format("OrderItem{id=%s, productId=%s, productName='%s', quantity=%d, subtotal=%s}",
+        return "OrderItem{id=%s, productId=%s, productName='%s', quantity=%d, subtotal=%s}".formatted(
             id, productId, productName, quantity, subtotal);
     }
     

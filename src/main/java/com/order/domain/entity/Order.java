@@ -195,7 +195,7 @@ public class Order {
     
     @Override
     public String toString() {
-        return String.format("Order{id=%s, externalOrderId=%s, itemCount=%d, totalAmount=%s, status=%s}",
+        return "Order{id=%s, externalOrderId=%s, itemCount=%d, totalAmount=%s, status=%s}".formatted(
             id, externalOrderId, items.size(), totalAmount, status);
     }
     

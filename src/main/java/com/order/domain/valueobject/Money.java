@@ -140,7 +140,7 @@ public final class Money {
     private void validateSameCurrency(Money other) {
         if (!this.currency.equals(other.currency)) {
             throw new InvalidMoneyException(
-                String.format("Moedas diferentes: %s e %s", this.currency, other.currency)
+                "Moedas diferentes: %s e %s".formatted(this.currency, other.currency)
             );
         }
     }
@@ -203,6 +203,6 @@ public final class Money {
     
     @Override
     public String toString() {
-        return String.format("%s %s", currency.getCurrencyCode(), amount.toPlainString());
+        return "%s %s".formatted(currency.getCurrencyCode(), amount.toPlainString());
     }
 }
