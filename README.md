@@ -1,0 +1,336 @@
+# 🛒 Order Management Service
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.2.2-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt="Spring Boot"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  <img src="https://img.shields.io/badge/RabbitMQ-3.12-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flyway-9.22-CC0200?style=for-the-badge&logo=flyway&logoColor=white" alt="Flyway"/>
+  <img src="https://img.shields.io/badge/JUnit-5-25A162?style=for-the-badge&logo=junit5&logoColor=white" alt="JUnit 5"/>
+  <img src="https://img.shields.io/badge/SonarQube-10-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white" alt="SonarQube"/>
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Testcontainers-1.19-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Testcontainers"/>
+  <img src="https://img.shields.io/badge/Resilience4j-2.2-000000?style=for-the-badge&logo=resilience4j&logoColor=white" alt="Resilience4j"/>
+  <img src="https://img.shields.io/badge/Prometheus-Metrics-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus"/>
+  <img src="https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License"/>
+  <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"/>
+  <img src="https://img.shields.io/badge/Maintained-Yes-green.svg?style=flat-square" alt="Maintained"/>
+</p>
+
+<p align="center">
+  <b>🚀 Microserviço de gerenciamento de pedidos de alta volumetria</b>
+</p>
+
+---
+
+## 📋 Sobre o Projeto
+
+O **Order Management Service** é um microserviço robusto desenvolvido para gerenciar pedidos em sistemas de alta demanda. Construído com as melhores práticas de arquitetura de software, oferece alta disponibilidade, resiliência e escalabilidade.
+
+### ✨ Principais Características
+
+| Característica | Descrição |
+|----------------|-----------|
+| 🚀 **Alta Performance** | Otimizado para processar grandes volumes de pedidos |
+| 🔄 **Mensageria Assíncrona** | RabbitMQ para processamento desacoplado |
+| 🛡️ **Resiliência** | Circuit Breaker com Resilience4j |
+| 📊 **Observabilidade** | Métricas Prometheus + Health checks |
+| 🗄️ **Migrations** | Flyway para versionamento de banco de dados |
+| 🧪 **Testes Robustos** | JUnit 5 + Testcontainers + ArchUnit |
+| 🔍 **Qualidade de Código** | SonarQube + JaCoCo para cobertura |
+| 🐳 **Cloud Native** | 100% containerizado e pronto para K8s |
+
+---
+
+## 🏗️ Arquitetura
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Order Service                             │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │   REST API  │  │  Messaging  │  │      Actuator           │  │
+│  │   (Web)     │  │  (RabbitMQ) │  │  (Health/Metrics)       │  │
+│  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────────┘  │
+│         │                │                     │                 │
+│  ┌──────┴────────────────┴─────────────────────┴─────────────┐  │
+│  │                    Application Layer                       │  │
+│  │              (Use Cases / Services)                        │  │
+│  └──────────────────────────┬────────────────────────────────┘  │
+│                             │                                    │
+│  ┌──────────────────────────┴────────────────────────────────┐  │
+│  │                      Domain Layer                          │  │
+│  │         (Entities / Value Objects / Exceptions)            │  │
+│  └──────────────────────────┬────────────────────────────────┘  │
+│                             │                                    │
+│  ┌──────────────────────────┴────────────────────────────────┐  │
+│  │                  Infrastructure Layer                      │  │
+│  │        (Repositories / Messaging / Config)                 │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+         │                           │
+         ▼                           ▼
+┌─────────────────┐        ┌─────────────────┐
+│   PostgreSQL    │        │    RabbitMQ     │
+│   (Database)    │        │   (Message      │
+│                 │        │    Broker)      │
+└─────────────────┘        └─────────────────┘
+```
+
+---
+
+## 🚀 Começando
+
+### Pré-requisitos
+
+Antes de começar, você vai precisar ter instalado:
+
+| Ferramenta | Versão | Obrigatório |
+|------------|--------|-------------|
+| ☕ Java | 21+ | ✅ |
+| 🐳 Docker | 20+ | ✅ |
+| 📦 Maven | 3.9+ | ❌ (wrapper incluso) |
+
+### ⚡ Quick Start
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/ms-manager-order-service.git
+cd ms-manager-order-service
+
+# 2. Configure o ambiente
+cp .env.example .env
+
+# 3. Suba os serviços
+docker-compose up -d
+
+# 4. Execute a aplicação
+./mvnw spring-boot:run
+```
+
+🎉 **Pronto!** Acesse: http://localhost:8080
+
+---
+
+## 🔍 Endpoints & Serviços
+
+### Health & Monitoring
+
+| Serviço | URL | Descrição |
+|---------|-----|-----------|
+| 🏥 Health | http://localhost:8080/actuator/health | Status da aplicação |
+| 📊 Métricas | http://localhost:8080/actuator/metrics | Métricas do sistema |
+| 📈 Prometheus | http://localhost:8080/actuator/prometheus | Métricas formatadas |
+| ℹ️ Info | http://localhost:8080/actuator/info | Informações da app |
+
+### Serviços de Infraestrutura
+
+| Serviço | URL | Credenciais |
+|---------|-----|-------------|
+| 🐰 RabbitMQ | http://localhost:15672 | guest / guest |
+| 🔍 SonarQube | http://localhost:9000 | admin / admin |
+
+---
+
+## 🧪 Testes
+
+O projeto possui uma suíte completa de testes:
+
+```bash
+# Executar todos os testes
+./mvnw test
+
+# Testes com cobertura (JaCoCo)
+./mvnw verify
+
+# Relatório de cobertura
+open target/site/jacoco/index.html
+```
+
+### Stack de Testes
+
+| Ferramenta | Uso |
+|------------|-----|
+| **JUnit 5** | Framework de testes |
+| **Testcontainers** | Containers para testes de integração |
+| **ArchUnit** | Testes de arquitetura |
+| **JaCoCo** | Cobertura de código |
+| **Mockito** | Mocks e stubs |
+
+---
+
+## 📊 Qualidade de Código
+
+### SonarQube
+
+```bash
+# Analisar código
+./mvnw sonar:sonar \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.token=seu_token
+```
+
+### Métricas Monitoradas
+
+- ✅ Cobertura de código
+- ✅ Bugs e vulnerabilidades
+- ✅ Code smells
+- ✅ Duplicações
+- ✅ Débito técnico
+
+---
+
+## 🗄️ Banco de Dados
+
+### Migrações com Flyway
+
+As migrações são executadas automaticamente ao iniciar a aplicação.
+
+```bash
+# Localização das migrações
+src/main/resources/db/migration/
+
+# Padrão de nomenclatura
+V1__Create_orders_table.sql
+V2__Add_order_items_table.sql
+```
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+ms-manager-order-service/
+├── 📂 src/
+│   ├── 📂 main/
+│   │   ├── 📂 java/com/order/
+│   │   │   ├── 📂 application/     # Casos de uso
+│   │   │   ├── 📂 domain/          # Entidades e regras
+│   │   │   ├── 📂 infrastructure/  # Implementações
+│   │   │   └── 📂 interfaces/      # Controllers e DTOs
+│   │   └── 📂 resources/
+│   │       ├── 📄 application.yml
+│   │       └── 📂 db/migration/    # Scripts Flyway
+│   └── 📂 test/                    # Testes
+├── 📂 docker/                      # Configurações Docker
+├── 📂 docs/                        # Documentação
+├── 📄 docker-compose.yml
+├── 📄 .env.example
+├── 📄 CHANGELOG.md
+└── 📄 README.md
+```
+
+---
+
+## 📚 Documentação
+
+| Documento | Descrição |
+|-----------|-----------|
+| [📐 Arquitetura](docs/arquitetura.md) | Decisões arquiteturais |
+| [🔌 Integração](docs/integracao.md) | APIs e contratos |
+| [📊 Observabilidade](docs/observabilidade.md) | Métricas e logs |
+| [🗄️ Persistência](docs/persistencia.md) | Modelo de dados |
+| [🧪 Testes](docs/testes.md) | Estratégia de testes |
+| [⚙️ Configuração](docs/configuracao-ambiente.md) | Variáveis de ambiente |
+
+---
+
+## 🛠️ Comandos Úteis
+
+### Docker
+
+```bash
+docker-compose up -d      # Iniciar serviços
+docker-compose down       # Parar serviços
+docker-compose logs -f    # Ver logs
+```
+
+### Maven
+
+```bash
+./mvnw spring-boot:run    # Executar aplicação
+./mvnw test               # Executar testes
+./mvnw verify             # Testes + cobertura
+./mvnw clean package      # Gerar JAR
+./mvnw sonar:sonar        # Análise SonarQube
+```
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são sempre bem-vindas! 
+
+1. 🍴 Fork o projeto
+2. 🌿 Crie sua branch (`git checkout -b feature/MinhaFeature`)
+3. 💾 Commit suas mudanças (`git commit -m 'feat: Adiciona MinhaFeature'`)
+4. 📤 Push para a branch (`git push origin feature/MinhaFeature`)
+5. 🔃 Abra um Pull Request
+
+### Convenção de Commits
+
+```
+feat:     Nova funcionalidade
+fix:      Correção de bug
+docs:     Documentação
+style:    Formatação
+refactor: Refatoração
+test:     Testes
+chore:    Tarefas gerais
+```
+
+---
+
+## 📝 Changelog
+
+Veja o arquivo [CHANGELOG.md](CHANGELOG.md) para o histórico completo de mudanças.
+
+---
+
+## �‍💻 Autor
+
+<p align="center">
+  <img src="https://github.com/douglas-dreer.png" width="150" style="border-radius: 50%;" alt="Douglas Dreer"/>
+</p>
+
+<p align="center">
+  <b>Douglas Dreer</b>
+</p>
+
+<p align="center">
+  <a href="https://linkedin.com/in/douglas-dreer">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+  </a>
+  <a href="https://github.com/douglas-dreer">
+    <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+  </a>
+  <a href="mailto:douglasdreer@gmail.com">
+    <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
+  </a>
+</p>
+
+---
+
+## �📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+<p align="center">
+  <sub>Feito com ❤️ para alta performance e escalabilidade</sub>
+</p>
+
+<p align="center">
+  <a href="#-order-management-service">⬆️ Voltar ao topo</a>
+</p>
