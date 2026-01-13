@@ -38,5 +38,5 @@ management:
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:WARN}
-    com.order: ${LOG_LEVEL_APP:DEBUG}
+    io.github.douglasdreer.order: ${LOG_LEVEL_APP:DEBUG}
     org.testcontainers: INFO

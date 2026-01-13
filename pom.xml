@@ -12,8 +12,8 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.order</groupId>
-    <artifactId>ms-manager-order-service</artifactId>
+    <groupId>io.github.douglasdreer</groupId>
+    <artifactId>order-service</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Order Management Service</name>
     <description>Microserviço de gerenciamento de pedidos de alta volumetria</description>

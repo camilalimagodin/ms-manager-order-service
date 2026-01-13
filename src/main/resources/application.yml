@@ -97,7 +97,7 @@ resilience4j:
           - java.sql.SQLException
           - org.springframework.dao.DataAccessException
         ignoreExceptions:
-          - com.order.domain.exception.ValidationException
+          - io.github.douglasdreer.order.domain.exception.ValidationException
       orderRepository:
         slidingWindowSize: 10
         failureRateThreshold: 50
@@ -108,7 +108,7 @@ resilience4j:
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
-    com.order: ${LOG_LEVEL_APP:DEBUG}
+    io.github.douglasdreer.order: ${LOG_LEVEL_APP:DEBUG}
     org.springframework.amqp: INFO
     org.hibernate.SQL: ${LOG_LEVEL_SQL:DEBUG}
     org.hibernate.type.descriptor.sql.BasicBinder: ${LOG_LEVEL_SQL_PARAMS:TRACE}

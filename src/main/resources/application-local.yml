@@ -16,6 +16,6 @@ spring:
 # Local Logging - Mais verboso para desenvolvimento
 logging:
   level:
-    com.order: DEBUG
+    io.github.douglasdreer.order: DEBUG
     org.springframework.amqp: DEBUG
     org.hibernate.SQL: DEBUG
