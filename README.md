@@ -56,26 +56,26 @@ O **Order Management Service** é um microserviço robusto desenvolvido para ger
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Order Service                             │
+│                        Order Service                            │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │   REST API  │  │  Messaging  │  │      Actuator           │  │
 │  │   (Web)     │  │  (RabbitMQ) │  │  (Health/Metrics)       │  │
 │  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────────┘  │
-│         │                │                     │                 │
+│         │                │                     │                │
 │  ┌──────┴────────────────┴─────────────────────┴─────────────┐  │
-│  │                    Application Layer                       │  │
-│  │              (Use Cases / Services)                        │  │
+│  │                    Application Layer                      │  │
+│  │              (Use Cases / Services)                       │  │
 │  └──────────────────────────┬────────────────────────────────┘  │
-│                             │                                    │
+│                             │                                   │
 │  ┌──────────────────────────┴────────────────────────────────┐  │
-│  │                      Domain Layer                          │  │
-│  │         (Entities / Value Objects / Exceptions)            │  │
+│  │                      Domain Layer                         │  │
+│  │         (Entities / Value Objects / Exceptions)           │  │
 │  └──────────────────────────┬────────────────────────────────┘  │
-│                             │                                    │
+│                             │                                   │
 │  ┌──────────────────────────┴────────────────────────────────┐  │
-│  │                  Infrastructure Layer                      │  │
-│  │        (Repositories / Messaging / Config)                 │  │
+│  │                  Infrastructure Layer                     │  │
+│  │        (Repositories / Messaging / Config)                │  │
 │  └───────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
          │                           │
