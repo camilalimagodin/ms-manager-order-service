@@ -1,0 +1,35 @@
+# Test Profile - Used with Testcontainers
+spring:
+  datasource:
+    # Will be overridden by Testcontainers
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: test
+    password: test
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    clean-disabled: false
+
+  rabbitmq:
+    # Will be overridden by Testcontainers
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+# Disable actuator for tests
+management:
+  endpoints:
+    enabled-by-default: false
+
+# Test Logging
+logging:
+  level:
+    root: WARN
+    com.order: DEBUG
+    org.testcontainers: INFO
