@@ -107,11 +107,11 @@ resilience4j:
 # Logging Configuration
 logging:
   level:
-    root: INFO
-    com.order: DEBUG
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.order: ${LOG_LEVEL_APP:DEBUG}
     org.springframework.amqp: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.SQL: ${LOG_LEVEL_SQL:DEBUG}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${LOG_LEVEL_SQL_PARAMS:TRACE}
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 

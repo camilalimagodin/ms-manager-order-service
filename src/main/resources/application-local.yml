@@ -1,26 +1,21 @@
+# =============================================================================
 # Local Development Profile
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/orderdb
-    username: order_user
-    password: order_pass
+# =============================================================================
+# Configurações específicas para desenvolvimento local.
+# As variáveis de ambiente são carregadas automaticamente do arquivo .env
+# pela biblioteca spring-dotenv.
+# =============================================================================
 
+spring:
   jpa:
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-
-# Local Logging - More verbose
+# Local Logging - Mais verboso para desenvolvimento
 logging:
   level:
-    root: INFO
     com.order: DEBUG
     org.springframework.amqp: DEBUG
     org.hibernate.SQL: DEBUG

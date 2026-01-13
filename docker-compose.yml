@@ -1,16 +1,16 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: order-postgres
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: orderdb
-      POSTGRES_USER: order_user
-      POSTGRES_PASSWORD: order_pass
+      POSTGRES_DB: ${DB_NAME:-orderdb}
+      POSTGRES_USER: ${DB_USERNAME:-order_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-order_pass}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -26,11 +26,13 @@ services:
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
     container_name: order-rabbitmq
+    env_file:
+      - .env
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
     ports:
-      - "5672:5672"   # AMQP
+      - "${RABBITMQ_PORT:-5672}:5672"   # AMQP
       - "15672:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
