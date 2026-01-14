@@ -176,14 +176,49 @@ cd ms-manager-order-service
 # 2. Configure o ambiente
 cp .env.example .env
 
-# 3. Suba os serviços
-docker-compose up -d
+# 3. Suba os serviços (usando scripts do bin/)
+# Windows:
+.\bin\docker-up.ps1
+
+# Linux/Mac:
+chmod +x bin/*.sh  # Primeira vez
+./bin/docker-up.sh
 
 # 4. Execute a aplicação
 ./mvnw spring-boot:run
 ```
 
 🎉 **Pronto!** Acesse: http://localhost:8080
+
+---
+
+## 🛠️ Scripts de Automação
+
+O projeto inclui scripts prontos na pasta [`bin/`](bin/) para facilitar tarefas comuns:
+
+### 🔍 Análise de Qualidade (SonarQube)
+
+```bash
+# Windows
+.\bin\sonar-analyze.ps1
+
+# Linux/Mac
+./bin/sonar-analyze.sh
+```
+
+### 🐳 Gerenciamento de Containers
+
+```bash
+# Iniciar containers
+.\bin\docker-up.ps1      # Windows
+./bin/docker-up.sh       # Linux/Mac
+
+# Parar containers
+.\bin\docker-down.ps1    # Windows
+./bin/docker-down.sh     # Linux/Mac
+```
+
+**Veja mais em**: [bin/README.md](bin/README.md)
 
 ---
 
