@@ -9,6 +9,30 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ### Adicionado
 
+#### 🌐 Internacionalização e Localização
+- Tradução completa de todos os comentários JavaDoc para PT_BR
+- Mensagens de exceção traduzidas para português brasileiro
+- Logs de aplicação em português
+- Anotações @DisplayName dos testes em PT_BR
+- Mensagens de validação Bean Validation em português
+- Eventos de mensageria com comentários em PT_BR:
+  - OrderCreatedEvent
+  - OrderStatusChangedEvent
+- Comentários BDD (Given/When/Then → Dado/Quando/Então)
+- Comentários AAA (Arrange/Act/Assert → Preparar/Agir/Verificar)
+
+#### 🧪 Testes de Mensageria
+- Testes unitários para OrderMessageConsumer (7 testes)
+- Testes unitários para OrderEventPublisher (6 testes)
+- Total de **128 testes** com 100% de taxa de sucesso
+- Validação de tratamento de exceções em mensageria
+- Testes de mapeamento de eventos para comandos
+
+#### 📦 Migrations
+- V3__create_indexes.sql - Índices para performance
+- V4__create_processed_messages_table.sql - Tabela para idempotência
+- Estrutura de dados para prevenir processamento duplicado
+
 #### 🌐 REST API & Documentação
 - REST API Layer com 8 endpoints documentados (CRUD completo)
 - Swagger/OpenAPI 3.0 com SpringDoc (acessível em `/swagger-ui.html`)
@@ -26,11 +50,16 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - OpenApiConfig com metadados completos da API
 
 #### 🧪 Testes
-- 14 testes unitários para REST Controllers com MockMvc
-- 22 testes unitários para Application Layer (Use Cases)
-- Total de 36 testes com 100% de taxa de sucesso
+- **128 testes unitários** com 100% de taxa de sucesso:
+  - 7 testes para OrderMessageConsumer
+  - 6 testes para OrderEventPublisher
+  - 14 testes para REST Controllers com MockMvc
+  - 22 testes para Application Layer (Use Cases)
+  - 79 testes adicionais incluindo domain, infrastructure e outros
 - Organização de testes com @Nested para melhor estrutura
 - Padrão AAA (Arrange-Act-Assert) aplicado consistentemente
+- Padrão BDD (Given-When-Then) nos testes de controller
+- Tradução de todos os DisplayName para PT_BR
 
 #### 🎯 Application Layer
 - Application Layer completa: DTOs, Ports, Mappers e Use Cases

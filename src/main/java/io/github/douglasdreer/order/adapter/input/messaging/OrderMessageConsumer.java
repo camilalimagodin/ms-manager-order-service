@@ -18,10 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Consumer RabbitMQ que processa eventos de criação de pedidos de sistemas externos (Produto Externo A).
- * Este consumer escuta a fila order.created.queue e aciona o caso de uso de criação de pedido.
- */
+/** Consumer RabbitMQ para eventos de criação de pedidos (fila: order.created.queue). */
 @Slf4j
 @Component
 @RequiredArgsConstructor

@@ -13,7 +13,7 @@ graph TB
     subgraph "Pirâmide de Testes"
         E2E[E2E Tests<br/>Poucos, lentos, caros]
         INT[Integration Tests<br/>Testcontainers - Pendente]
-        UNIT[Unit Tests<br/>✅ 36 testes passando]
+        UNIT[Unit Tests<br/>✅ 128 testes passando]
     end
     
     E2E --> INT --> UNIT
@@ -29,8 +29,20 @@ graph TB
 |-----------|------------|--------|
 | **Application Layer (Use Cases)** | 22 testes | ✅ Passing |
 | **REST Controllers** | 14 testes | ✅ Passing |
+| **Messaging Adapters** | 13 testes | ✅ Passing |
+| **Domain Layer** | 58 testes | ✅ Passing |
+| **Infrastructure Layer** | 21 testes | ✅ Passing |
 | **Integration Tests** | 0 testes | 🔄 Pendente |
-| **Total** | **36 testes** | ✅ **100% Success** |
+| **Total** | **128 testes** | ✅ **100% Success** |
+
+### Padrões de Teste por Camada
+
+| Camada | Padrão | Linguagem | Exemplo |
+|--------|--------|-----------|---------|
+| **Use Cases** | AAA | PT_BR | Preparar-Agir-Verificar |
+| **Controllers** | BDD | PT_BR | Dado-Quando-Então |
+| **Messaging** | AAA | PT_BR | Preparar-Agir-Verificar |
+| **@DisplayName** | Descritivo | PT_BR | "Deve lançar exceção quando..." |
 
 ---
 

@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Implementação do caso de uso de consulta de pedidos.
- */
+/** Caso de uso para consulta de pedidos. */
 @Service
 @RequiredArgsConstructor
 @Slf4j

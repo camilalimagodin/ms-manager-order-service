@@ -4,33 +4,15 @@ import io.github.douglasdreer.order.application.dto.OrderResponse;
 
 import java.util.UUID;
 
-/**
- * Porta de entrada para processamento de pedidos.
- */
+/** Porta de entrada para processamento de pedidos. */
 public interface ProcessOrderUseCase {
 
-    /**
-     * Processa um pedido (calcula totais e atualiza status).
-     *
-     * @param orderId identificador do pedido
-     * @return pedido processado
-     */
+    /** Processa um pedido (calcula totais e atualiza status). */
     OrderResponse process(UUID orderId);
 
-    /**
-     * Marca pedido como disponível para consulta externa.
-     *
-     * @param orderId identificador do pedido
-     * @return pedido atualizado
-     */
+    /** Marca pedido como disponível para consulta externa. */
     OrderResponse markAsAvailable(UUID orderId);
 
-    /**
-     * Marca pedido como falha.
-     *
-     * @param orderId identificador do pedido
-     * @param reason motivo da falha
-     * @return pedido atualizado
-     */
+    /** Marca pedido como falha. */
     OrderResponse markAsFailed(UUID orderId, String reason);
 }

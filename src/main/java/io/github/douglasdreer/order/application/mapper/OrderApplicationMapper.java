@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Currency;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Mapper para conversão entre DTOs e entidades de domínio.
@@ -29,7 +28,7 @@ public class OrderApplicationMapper {
 
         List<OrderItem> items = command.getItems().stream()
                 .map(this::toItemDomain)
-                .collect(Collectors.toList());
+                .toList();
 
         return Order.builder()
                 .externalOrderId(command.getExternalOrderId())
@@ -66,7 +65,7 @@ public class OrderApplicationMapper {
 
         List<OrderResponse.OrderItemResponse> itemResponses = order.getItems().stream()
                 .map(this::toItemResponse)
-                .collect(Collectors.toList());
+                .toList();
 
         return OrderResponse.builder()
                 .id(order.getId())
@@ -105,6 +104,6 @@ public class OrderApplicationMapper {
     public List<OrderResponse> toResponseList(List<Order> orders) {
         return orders.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

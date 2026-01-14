@@ -10,10 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Evento representando uma nova requisição de criação de pedido de sistemas externos (Produto Externo A).
- * Este evento é consumido do RabbitMQ e dispara o processo de criação de pedido.
- */
+/** Evento de criação de pedido consumido do RabbitMQ (Produto Externo A). */
 @Builder
 public record OrderCreatedEvent(
         @JsonProperty("correlation_id")
@@ -33,9 +30,7 @@ public record OrderCreatedEvent(
         LocalDateTime createdAt
 ) implements Serializable {
 
-    /**
-     * Representa um item no evento de pedido
-     */
+    /** Item do pedido no evento. */
     @Builder
     public record OrderItemEvent(
             @JsonProperty("product_id")

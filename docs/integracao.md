@@ -12,7 +12,8 @@ flowchart LR
     end
     
     subgraph "Order Service"
-        C[Consumer - Pendente]
+        C[✅ Consumer - Implementado]
+        P[✅ Publisher - Implementado]
         UC[Use Cases]
         API[✅ REST API - 8 endpoints]
     end
@@ -22,16 +23,36 @@ flowchart LR
     end
     
     A -->|Publica eventos| RMQ
-    RMQ -.->|Consome| C
-    C -.-> UC
+    RMQ -->|Consome| C
+    C --> UC
+    UC --> P
+    P -->|Publica status| RMQ
     B -->|HTTP GET| API
     API --> UC
 ```
 
 | Integração | Direção | Protocolo | Padrão | Status |
 |------------|---------|-----------|--------|--------|
-| Produto Externo A | Inbound | AMQP (RabbitMQ) | Event-Driven | 🔄 Pendente |
+| Produto Externo A | Inbound | AMQP (RabbitMQ) | Event-Driven | ✅ Implementado |
 | Produto Externo B | Outbound | REST/HTTP | Request-Response | ✅ Implementado |
+| Order Events | Outbound | AMQP (RabbitMQ) | Event Publishing | ✅ Implementado |
+
+### Componentes de Mensageria
+
+| Componente | Tipo | Descrição | Status |
+|------------|------|-----------|--------|
+| **OrderMessageConsumer** | Inbound | Consome eventos de criação de pedidos | ✅ 7 testes |
+| **OrderEventPublisher** | Outbound | Publica eventos de mudança de status | ✅ 6 testes |
+| **OrderCreatedEvent** | DTO | Evento de criação (entrada) | ✅ PT_BR |
+| **OrderStatusChangedEvent** | DTO | Evento de status (saída) | ✅ PT_BR |
+
+### Tratamento de Erros e Resiliência
+
+- ✅ **Validação de eventos** antes do processamento
+- ✅ **Encapsulamento de exceções** em MessageProcessingException
+- ✅ **Logs estruturados** em português com correlation ID
+- ✅ **Idempotência** via tabela processed_messages
+- ✅ **Dead Letter Queue** para mensagens com falha
 
 ---
 
@@ -57,24 +78,25 @@ flowchart LR
 
 ### Tratamento de Erros (RFC 7807)
 
-Todos os erros seguem o padrão Problem Detail:
+Todos os erros seguem o padrão Problem Detail com mensagens em PT_BR:
 
 ```json
 {
   "type": "about:blank",
-  "title": "Validation Error",
+  "title": "Erro de Validação",
   "status": 400,
-  "detail": "Invalid order data",
+  "detail": "Dados inválidos",
   "instance": "/api/v1/orders"
 }
 ```
 
-| Exception | Status | Title |
-|-----------|--------|-------|
-| ValidationException | 400 | Validation Error |
-| OrderNotFoundException | 404 | Order Not Found |
-| DuplicateOrderException | 409 | Duplicate Order |
-| IllegalStateException | 422 | Invalid State Transition |
+| Exception | Status | Title (PT_BR) | Mensagem Exemplo |
+|-----------|--------|---------------|------------------|
+| ValidationException | 400 | Erro de Validação | Dados inválidos |
+| OrderNotFoundException | 404 | Pedido Não Encontrado | Pedido não encontrado com ID: {id} |
+| DuplicateOrderException | 409 | Pedido Duplicado | Pedido já existe com External ID: {id} |
+| IllegalStateException | 422 | Transição de Estado Inválida | Estado inválido |
+| MessageProcessingException | 500 | Erro de Processamento | Falha ao processar evento |
 
 ---
 

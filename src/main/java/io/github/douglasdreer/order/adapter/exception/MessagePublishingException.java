@@ -1,9 +1,6 @@
 package io.github.douglasdreer.order.adapter.exception;
 
-/**
- * Exceção lançada quando há erro ao publicar uma mensagem no broker de mensagens.
- * Esta exceção encapsula erros inesperados que ocorrem durante a publicação de mensagens.
- */
+/** Exceção para erros ao publicar mensagens no broker. */
 public class MessagePublishingException extends RuntimeException {
 
     public MessagePublishingException(String message) {

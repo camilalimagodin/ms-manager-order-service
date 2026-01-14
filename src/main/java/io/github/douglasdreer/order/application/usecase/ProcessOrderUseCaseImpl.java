@@ -13,9 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * Implementação do caso de uso de processamento de pedidos.
- */
+/** Caso de uso para processamento e mudanças de status de pedidos. */
 @Service
 @RequiredArgsConstructor
 @Slf4j

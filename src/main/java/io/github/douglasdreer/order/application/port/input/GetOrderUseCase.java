@@ -6,39 +6,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Porta de entrada para consulta de pedidos.
- */
+/** Porta de entrada para consulta de pedidos. */
 public interface GetOrderUseCase {
 
-    /**
-     * Busca pedido por ID interno.
-     *
-     * @param id identificador único
-     * @return pedido encontrado ou empty
-     */
+    /** Busca pedido por ID interno. */
     Optional<OrderResponse> findById(UUID id);
 
-    /**
-     * Busca pedido por ID externo.
-     *
-     * @param externalOrderId identificador externo
-     * @return pedido encontrado ou empty
-     */
+    /** Busca pedido por ID externo. */
     Optional<OrderResponse> findByExternalOrderId(String externalOrderId);
 
-    /**
-     * Busca pedidos por status.
-     *
-     * @param status status do pedido
-     * @return lista de pedidos
-     */
+    /** Busca pedidos por status. */
     List<OrderResponse> findByStatus(String status);
 
-    /**
-     * Busca todos os pedidos.
-     *
-     * @return lista de pedidos
-     */
+    /** Busca todos os pedidos. */
     List<OrderResponse> findAll();
 }

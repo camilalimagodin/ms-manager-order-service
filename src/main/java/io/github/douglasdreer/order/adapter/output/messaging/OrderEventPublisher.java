@@ -8,10 +8,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Publisher para eventos relacionados a pedidos no RabbitMQ.
- * Publica mudanças de status de pedidos para sistemas externos (Produto Externo B).
- */
+/** Publisher RabbitMQ para eventos de mudança de status de pedidos. */
 @Slf4j
 @Component
 @RequiredArgsConstructor

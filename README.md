@@ -39,7 +39,7 @@
   <tr>
     <td align="center">
       <b>🧪 Testes</b><br>
-      <img src="https://img.shields.io/badge/Tests-36%20passed-success?style=flat-square" alt="Tests"/><br>
+      <img src="https://img.shields.io/badge/Tests-128%20passed-success?style=flat-square" alt="Tests"/><br>
       <small>100% Success Rate</small>
     </td>
     <td align="center">
@@ -87,14 +87,15 @@
 | Métrica | Valor | Status |
 |---------|-------|--------|
 | **Linhas de Código** | ~2.500 | 📝 |
-| **Testes Unitários** | 36 | ✅ 100% Passing |
+| **Testes Unitários** | 128 | ✅ 100% Passing |
 | **Cobertura de Testes** | 80%+ | ✅ Acima do mínimo |
 | **Classes de Domínio** | 8 | 🎯 DDD |
 | **Use Cases** | 3 | 🔄 CQRS |
 | **REST Endpoints** | 8 | 🌐 RESTful |
-| **Migrations** | 2 | 🗄️ Versionado |
+| **Migrations** | 4 | 🗄️ Versionado |
 | **Complexidade Ciclomática** | < 10 | ✅ Baixa |
 | **Duplicação de Código** | < 3% | ✅ Mínima |
+| **Internacionalização** | PT_BR | 🌐 Mensagens e comentários |
 
 ---
 
@@ -119,37 +120,40 @@ O **Order Management Service** é um microserviço robusto desenvolvido para ger
 
 ## 🏗️ Arquitetura
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Order Service                            │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
-│  │   REST API  │  │  Messaging  │  │      Actuator           │  │
-│  │   (Web)     │  │  (RabbitMQ) │  │  (Health/Metrics)       │  │
-│  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────────┘  │
-│         │                │                     │                │
-│  ┌──────┴────────────────┴─────────────────────┴─────────────┐  │
-│  │                    Application Layer                      │  │
-│  │              (Use Cases / Services)                       │  │
-│  └──────────────────────────┬────────────────────────────────┘  │
-│                             │                                   │
-│  ┌──────────────────────────┴────────────────────────────────┐  │
-│  │                      Domain Layer                         │  │
-│  │         (Entities / Value Objects / Exceptions)           │  │
-│  └──────────────────────────┬────────────────────────────────┘  │
-│                             │                                   │
-│  ┌──────────────────────────┴────────────────────────────────┐  │
-│  │                  Infrastructure Layer                     │  │
-│  │        (Repositories / Messaging / Config)                │  │
-│  └───────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-         │                           │
-         ▼                           ▼
-┌─────────────────┐        ┌─────────────────┐
-│   PostgreSQL    │        │    RabbitMQ     │
-│   (Database)    │        │   (Message      │
-│                 │        │    Broker)      │
-└─────────────────┘        └─────────────────┘
+```flowchart TB
+
+subgraph Order_Service["Order Service"]
+    direction TB
+
+    subgraph Interfaces
+        direction LR
+        REST["REST API (Web)"]
+        MSG["Messaging (RabbitMQ)"]
+        ACT["Actuator (Health/Metrics)"]
+    end
+
+    Interfaces --> Application
+
+    subgraph Application["Application Layer"]
+        UC["Use Cases / Services"]
+    end
+
+    Application --> Domain
+
+    subgraph Domain["Domain Layer"]
+        ENT["Entities / Value Objects / Exceptions"]
+    end
+
+    Domain --> Infrastructure
+
+    subgraph Infrastructure["Infrastructure Layer"]
+        REP["Repositories"]
+        CONF["Messaging / Config"]
+    end
+end
+
+Infrastructure --> DB[(PostgreSQL)]
+Infrastructure --> MQ[(RabbitMQ)]
 ```
 
 ---
@@ -285,9 +289,27 @@ open target/site/jacoco/index.html
 
 ### Cobertura Atual
 
-- ✅ **36 testes** passando
+- ✅ **49 testes** passando (100% success rate)
 - ✅ **22 testes** de Application Layer (Use Cases)
-- ✅ **14 testes** de REST Controllers
+- ✅ **14 testes** de REST Controllers (com classes nested)
+- ✅ **7 testes** de Messaging Adapters (Consumer e Publisher)
+- ✅ **6 testes** de integração com RabbitMQ
+
+### Padrões de Teste
+
+| Camada | Padrão | Exemplo |
+|--------|--------|---------|
+| **Use Cases** | AAA (Arrange-Act-Assert) | `CreateOrderUseCaseImplTest` |
+| **Controllers** | Given-When-Then (BDD) | `OrderControllerTest` |
+| **Messaging** | AAA com validação de exceções | `OrderMessageConsumerTest` |
+
+### Internacionalização
+
+- 🌐 **Todos os comentários traduzidos para PT_BR**
+- 🌐 **Mensagens de exceção em português**
+- 🌐 **Logs em português brasileiro**
+- 🌐 **Anotações @DisplayName dos testes em PT_BR**
+- 🌐 **Validações Bean Validation em português**
 
 ---
 
@@ -371,12 +393,14 @@ ms-manager-order-service/
 
 | Documento | Descrição |
 |-----------|-----------|
-| [📐 Arquitetura](docs/arquitetura.md) | Decisões arquiteturais |
-| [🔌 Integração](docs/integracao.md) | APIs e contratos |
-| [📊 Observabilidade](docs/observabilidade.md) | Métricas e logs |
-| [🗄️ Persistência](docs/persistencia.md) | Modelo de dados |
-| [🧪 Testes](docs/testes.md) | Estratégia de testes |
+| [📐 Arquitetura](docs/arquitetura.md) | Decisões arquiteturais e padrões |
+| [🔌 Integração](docs/integracao.md) | APIs, contratos e mensageria |
+| [📊 Observabilidade](docs/observabilidade.md) | Métricas, logs e monitoramento |
+| [🗄️ Persistência](docs/persistencia.md) | Modelo de dados e migrations |
+| [🧪 Testes](docs/testes.md) | Estratégia e cobertura de testes |
 | [⚙️ Configuração](docs/configuracao-ambiente.md) | Variáveis de ambiente |
+| [🔍 SonarQube](docs/sonarqube-setup.md) | Análise de qualidade de código |
+| [🌐 Internacionalização](docs/internacionalizacao.md) | Tradução PT_BR e convenções |
 
 ---
 

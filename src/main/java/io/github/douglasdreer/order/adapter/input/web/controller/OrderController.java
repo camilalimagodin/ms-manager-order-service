@@ -24,9 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Controlador REST para operações de pedidos.
- */
+/** Controlador REST para operações de pedidos. */
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
@@ -42,23 +40,21 @@ public class OrderController {
             summary = "Criar novo pedido",
             description = "Cria um novo pedido com os itens informados. O pedido é criado com status RECEIVED e totais calculados automaticamente."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Pedido criado com sucesso",
-                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Dados inválidos",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Pedido duplicado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "201",
+            description = "Pedido criado com sucesso",
+            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Pedido duplicado",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> createOrder(
             @Valid @RequestBody CreateOrderCommand command) {
@@ -76,18 +72,16 @@ public class OrderController {
             summary = "Buscar pedido por ID",
             description = "Retorna os detalhes de um pedido específico incluindo todos os itens."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Pedido encontrado",
-                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Pedido não encontrado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pedido encontrado",
+            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Pedido não encontrado",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> getOrderById(
             @Parameter(description = "ID único do pedido", example = "550e8400-e29b-41d4-a716-446655440000")
@@ -104,18 +98,16 @@ public class OrderController {
             summary = "Buscar pedido por ID externo",
             description = "Retorna os detalhes de um pedido usando o identificador externo fornecido pelo sistema de origem."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Pedido encontrado",
-                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Pedido não encontrado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pedido encontrado",
+            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Pedido não encontrado",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
     @GetMapping(value = "/external/{externalOrderId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> getOrderByExternalId(
             @Parameter(description = "ID externo do pedido", example = "EXT-ORDER-12345")
@@ -132,12 +124,10 @@ public class OrderController {
             summary = "Listar pedidos por status",
             description = "Retorna uma lista de pedidos filtrados por status."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Lista de pedidos retornada com sucesso"
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de pedidos retornada com sucesso"
+    )
     @GetMapping(value = "/status/{status}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<OrderResponse>> getOrdersByStatus(
             @Parameter(description = "Status do pedido", example = "CALCULATED")
@@ -154,12 +144,10 @@ public class OrderController {
             summary = "Listar todos os pedidos",
             description = "Retorna uma lista com todos os pedidos do sistema."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Lista de pedidos retornada com sucesso"
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de pedidos retornada com sucesso"
+    )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
         log.debug("Requisição para listar todos os pedidos");
@@ -173,23 +161,21 @@ public class OrderController {
             summary = "Processar pedido",
             description = "Inicia o processamento de um pedido. Transiciona o status para PROCESSING e calcula os totais."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Pedido processado com sucesso",
-                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Pedido não encontrado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            ),
-            @ApiResponse(
-                    responseCode = "422",
-                    description = "Status inválido para processamento",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pedido processado com sucesso",
+            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Pedido não encontrado",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
+    @ApiResponse(
+            responseCode = "422",
+            description = "Status inválido para processamento",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
     @PostMapping(value = "/{id}/process", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> processOrder(
             @Parameter(description = "ID único do pedido")
@@ -206,23 +192,21 @@ public class OrderController {
             summary = "Marcar pedido como disponível",
             description = "Marca o pedido como disponível para consulta externa. Requer que o pedido esteja no status CALCULATED."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Pedido marcado como disponível",
-                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Pedido não encontrado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            ),
-            @ApiResponse(
-                    responseCode = "422",
-                    description = "Status inválido para marcação como disponível",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pedido marcado como disponível",
+            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Pedido não encontrado",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
+    @ApiResponse(
+            responseCode = "422",
+            description = "Status inválido para marcação como disponível",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
     @PatchMapping(value = "/{id}/available", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> markAsAvailable(
             @Parameter(description = "ID único do pedido")
@@ -239,18 +223,16 @@ public class OrderController {
             summary = "Marcar pedido como falha",
             description = "Marca o pedido como falha no processamento. Pode ser aplicado a qualquer pedido não finalizado."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Pedido marcado como falha",
-                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Pedido não encontrado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pedido marcado como falha",
+            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Pedido não encontrado",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+    )
     @PatchMapping(value = "/{id}/failed", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResponse> markAsFailed(
             @Parameter(description = "ID único do pedido")

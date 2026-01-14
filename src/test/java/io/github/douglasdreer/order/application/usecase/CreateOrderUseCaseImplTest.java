@@ -5,17 +5,14 @@ import io.github.douglasdreer.order.application.dto.OrderResponse;
 import io.github.douglasdreer.order.application.mapper.OrderApplicationMapper;
 import io.github.douglasdreer.order.application.port.output.OrderRepositoryPort;
 import io.github.douglasdreer.order.domain.entity.Order;
-import io.github.douglasdreer.order.domain.entity.OrderItem;
 import io.github.douglasdreer.order.domain.exception.DuplicateOrderException;
 import io.github.douglasdreer.order.domain.exception.ValidationException;
-import io.github.douglasdreer.order.domain.valueobject.Money;
 import io.github.douglasdreer.order.domain.valueobject.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -23,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -71,10 +67,7 @@ class CreateOrderUseCaseImplTest {
         void shouldCreateOrderSuccessfully() {
             // Preparar
             when(orderRepository.existsByExternalOrderId(anyString())).thenReturn(false);
-            when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
-                Order order = invocation.getArgument(0);
-                return order;
-            });
+            when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Agir
             OrderResponse response = useCase.execute(validCommand);

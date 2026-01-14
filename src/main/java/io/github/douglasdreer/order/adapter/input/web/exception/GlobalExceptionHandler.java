@@ -24,6 +24,8 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    private static final String TIMESTAMP = "timestamp";
+
     /**
      * Trata exceções de validação de domínio.
      */
@@ -37,7 +39,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Erro de Validação");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/validation"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         
         return problemDetail;
     }
@@ -55,7 +57,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Pedido Não Encontrado");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/not-found"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         
         return problemDetail;
     }
@@ -73,7 +75,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Pedido Duplicado");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/duplicate"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         
         return problemDetail;
     }
@@ -96,7 +98,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Erro de Validação de Entrada");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/validation"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         problemDetail.setProperty("errors", errors);
         
         return problemDetail;
@@ -115,7 +117,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Estado Inválido");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/invalid-state"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         
         return problemDetail;
     }
@@ -133,7 +135,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Erro de Domínio");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/domain"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         
         return problemDetail;
     }
@@ -151,7 +153,7 @@ public class GlobalExceptionHandler {
         
         problemDetail.setTitle("Erro Interno");
         problemDetail.setType(URI.create("https://api.order-service.io/errors/internal"));
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(TIMESTAMP, Instant.now());
         
         return problemDetail;
     }

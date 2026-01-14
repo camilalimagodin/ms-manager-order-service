@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Currency;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Mapper para conversão entre entidades de domínio e entidades JPA.
@@ -43,7 +42,7 @@ public class OrderPersistenceMapper {
         // Mapear itens
         List<OrderItemEntity> itemEntities = domain.getItems().stream()
                 .map(item -> toItemEntity(item, entity))
-                .collect(Collectors.toList());
+                .toList();
         
         entity.setItems(itemEntities);
 
@@ -61,7 +60,7 @@ public class OrderPersistenceMapper {
         // Mapear itens primeiro
         List<OrderItem> items = entity.getItems().stream()
                 .map(this::toItemDomain)
-                .collect(Collectors.toList());
+                .toList();
 
         return Order.builder()
                 .id(entity.getId())
@@ -121,7 +120,7 @@ public class OrderPersistenceMapper {
     public List<Order> toDomainList(List<OrderEntity> entities) {
         return entities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

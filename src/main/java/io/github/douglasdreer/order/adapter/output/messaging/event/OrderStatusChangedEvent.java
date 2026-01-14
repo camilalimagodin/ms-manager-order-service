@@ -9,11 +9,7 @@ import lombok.Builder;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * Evento representando uma mudança de status de pedido.
- * Este evento é publicado no RabbitMQ quando um status de pedido muda
- * e pode ser consumido por sistemas externos (Produto Externo B).
- */
+/** Evento de mudança de status publicado no RabbitMQ para sistemas externos. */
 @Builder
 public record OrderStatusChangedEvent(
         @JsonProperty("order_id")
