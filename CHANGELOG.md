@@ -8,6 +8,15 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ## [Não Lançado]
 
 ### Adicionado
+- REST API Layer com 8 endpoints documentados
+- Swagger/OpenAPI 3.0 com SpringDoc (acessível em `/swagger-ui.html`)
+- GlobalExceptionHandler com RFC 7807 Problem Detail
+- OrderController com suporte completo a CRUD de pedidos
+- Bean Validation (Jakarta Validation) nos endpoints
+- 14 testes unitários para REST Controllers com MockMvc
+- 22 testes unitários para Application Layer (Use Cases)
+- Application Layer completa: DTOs, Ports, Mappers e Use Cases
+- Implementação dos Use Cases: CreateOrder, GetOrder, ProcessOrder
 - Configuração de variáveis de ambiente com arquivos `.env`
 - Dependência `spring-dotenv` para carregar variáveis de ambiente automaticamente
 - Arquivo `.env.example` como template de configuração
@@ -16,8 +25,14 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ### Modificado
 - Docker Compose atualizado para usar variáveis do arquivo `.env`
+- Removido SonarQube do docker-compose.yml (não está em uso)
 - Arquivos de configuração Spring (`application*.yml`) para usar variáveis de ambiente
 - Configuração de logging parametrizável via variáveis de ambiente
+- Money class: corrigida ordem de inicialização de campos estáticos
+
+### Corrigido
+- Bug de NullPointerException na classe Money (ordem de inicialização estática)
+- Validação de command antes de log.info() em CreateOrderUseCaseImpl
 
 ---
 

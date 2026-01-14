@@ -12,9 +12,9 @@ flowchart LR
     end
     
     subgraph "Order Service"
-        C[Consumer]
-        S[Service Layer]
-        API[REST API]
+        C[Consumer - Pendente]
+        UC[Use Cases]
+        API[✅ REST API - 8 endpoints]
     end
     
     subgraph "Outbound - Síncrono"
@@ -22,16 +22,59 @@ flowchart LR
     end
     
     A -->|Publica eventos| RMQ
-    RMQ -->|Consome| C
-    C --> S
+    RMQ -.->|Consome| C
+    C -.-> UC
     B -->|HTTP GET| API
-    API --> S
+    API --> UC
 ```
 
-| Integração | Direção | Protocolo | Padrão |
-|------------|---------|-----------|--------|
-| Produto Externo A | Inbound | AMQP (RabbitMQ) | Event-Driven |
-| Produto Externo B | Outbound | REST/HTTP | Request-Response |
+| Integração | Direção | Protocolo | Padrão | Status |
+|------------|---------|-----------|--------|--------|
+| Produto Externo A | Inbound | AMQP (RabbitMQ) | Event-Driven | 🔄 Pendente |
+| Produto Externo B | Outbound | REST/HTTP | Request-Response | ✅ Implementado |
+
+---
+
+## 1.1 REST API (Produto Externo B)
+
+### Endpoints Disponíveis
+
+| Método | Endpoint | Descrição | Status Code |
+|--------|----------|-----------|-------------|
+| POST | `/api/v1/orders` | Criar novo pedido | 201 |
+| GET | `/api/v1/orders/{id}` | Buscar pedido por ID | 200, 404 |
+| GET | `/api/v1/orders/external/{externalOrderId}` | Buscar por ID externo | 200, 404 |
+| GET | `/api/v1/orders/status/{status}` | Listar por status | 200 |
+| GET | `/api/v1/orders` | Listar todos | 200 |
+| POST | `/api/v1/orders/{id}/process` | Processar pedido | 200, 404, 422 |
+| PATCH | `/api/v1/orders/{id}/available` | Marcar disponível | 200, 404, 422 |
+| PATCH | `/api/v1/orders/{id}/failed` | Marcar como falha | 200, 404 |
+
+### Documentação Interativa
+
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI Spec**: http://localhost:8080/v3/api-docs
+
+### Tratamento de Erros (RFC 7807)
+
+Todos os erros seguem o padrão Problem Detail:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Invalid order data",
+  "instance": "/api/v1/orders"
+}
+```
+
+| Exception | Status | Title |
+|-----------|--------|-------|
+| ValidationException | 400 | Validation Error |
+| OrderNotFoundException | 404 | Order Not Found |
+| DuplicateOrderException | 409 | Duplicate Order |
+| IllegalStateException | 422 | Invalid State Transition |
 
 ---
 

@@ -12,8 +12,8 @@ A estratégia de testes do serviço **order** segue a **Pirâmide de Testes**, c
 graph TB
     subgraph "Pirâmide de Testes"
         E2E[E2E Tests<br/>Poucos, lentos, caros]
-        INT[Integration Tests<br/>Testcontainers]
-        UNIT[Unit Tests<br/>Muitos, rápidos, baratos]
+        INT[Integration Tests<br/>Testcontainers - Pendente]
+        UNIT[Unit Tests<br/>✅ 36 testes passando]
     end
     
     E2E --> INT --> UNIT
@@ -22,6 +22,15 @@ graph TB
     style INT fill:#ff9800,color:#fff
     style E2E fill:#f44336,color:#fff
 ```
+
+### Status Atual de Testes
+
+| Categoria | Quantidade | Status |
+|-----------|------------|--------|
+| **Application Layer (Use Cases)** | 22 testes | ✅ Passing |
+| **REST Controllers** | 14 testes | ✅ Passing |
+| **Integration Tests** | 0 testes | 🔄 Pendente |
+| **Total** | **36 testes** | ✅ **100% Success** |
 
 ---
 

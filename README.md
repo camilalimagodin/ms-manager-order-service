@@ -124,6 +124,21 @@ docker-compose up -d
 
 ## 🔍 Endpoints & Serviços
 
+### REST API
+
+| Endpoint | Método | Descrição |
+|----------|--------|------------|
+| 📄 Swagger UI | http://localhost:8080/swagger-ui.html | Documentação interativa |
+| 📋 OpenAPI | http://localhost:8080/v3/api-docs | Especificação OpenAPI |
+| 📦 Criar Pedido | POST /api/v1/orders | Cria novo pedido |
+| 🔍 Buscar por ID | GET /api/v1/orders/{id} | Busca pedido por ID |
+| 🔍 Buscar por ID Externo | GET /api/v1/orders/external/{externalOrderId} | Busca por ID externo |
+| 📊 Listar por Status | GET /api/v1/orders/status/{status} | Lista pedidos por status |
+| 📋 Listar Todos | GET /api/v1/orders | Lista todos os pedidos |
+| ⚙️ Processar | POST /api/v1/orders/{id}/process | Processa pedido |
+| ✅ Marcar Disponível | PATCH /api/v1/orders/{id}/available | Marca como disponível |
+| ❌ Marcar Falha | PATCH /api/v1/orders/{id}/failed | Marca como falha |
+
 ### Health & Monitoring
 
 | Serviço | URL | Descrição |
@@ -138,7 +153,6 @@ docker-compose up -d
 | Serviço | URL | Credenciais |
 |---------|-----|-------------|
 | 🐰 RabbitMQ | http://localhost:15672 | guest / guest |
-| 🔍 SonarQube | http://localhost:9000 | admin / admin |
 
 ---
 
@@ -162,10 +176,17 @@ open target/site/jacoco/index.html
 | Ferramenta | Uso |
 |------------|-----|
 | **JUnit 5** | Framework de testes |
+| **MockMvc** | Testes de REST Controllers |
 | **Testcontainers** | Containers para testes de integração |
 | **ArchUnit** | Testes de arquitetura |
 | **JaCoCo** | Cobertura de código |
 | **Mockito** | Mocks e stubs |
+
+### Cobertura Atual
+
+- ✅ **36 testes** passando
+- ✅ **22 testes** de Application Layer (Use Cases)
+- ✅ **14 testes** de REST Controllers
 
 ---
 
