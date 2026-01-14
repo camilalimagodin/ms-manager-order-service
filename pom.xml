@@ -219,6 +219,29 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <!-- Configurações Spring não precisam de teste -->
+                        <exclude>**/*Config.class</exclude>
+                        <exclude>**/*Configuration.class</exclude>
+                        
+                        <!-- Entidades JPA são POJOs de infraestrutura -->
+                        <exclude>**/infrastructure/persistence/entity/**</exclude>
+                        
+                        <!-- Builders gerados pelo Lombok -->
+                        <exclude>**/*Builder.class</exclude>
+                        
+                        <!-- DTOs simples sem lógica de negócio -->
+                        <exclude>**/application/dto/**</exclude>
+                        <exclude>**/adapter/*/messaging/event/**</exclude>
+                        
+                        <!-- Classe main -->
+                        <exclude>**/OrderApplication.class</exclude>
+                        
+                        <!-- Exceções customizadas simples -->
+                        <exclude>**/exception/*Exception.class</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <!-- Failsafe para testes de integração -->

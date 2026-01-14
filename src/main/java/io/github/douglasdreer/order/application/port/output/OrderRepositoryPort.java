@@ -8,88 +8,36 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Porta de saída para persistência de pedidos.
- * Define o contrato que a camada de infraestrutura deve implementar.
- */
+/** Porta de saída para persistência de pedidos. */
 public interface OrderRepositoryPort {
 
-    /**
-     * Salva um pedido.
-     *
-     * @param order pedido a ser salvo
-     * @return pedido salvo com ID gerado
-     */
+    /** Salva um pedido. */
     Order save(Order order);
 
-    /**
-     * Busca pedido por ID interno.
-     *
-     * @param id identificador único
-     * @return pedido encontrado ou empty
-     */
+    /** Busca pedido por ID interno. */
     Optional<Order> findById(UUID id);
 
-    /**
-     * Busca pedido por ID externo.
-     *
-     * @param externalOrderId identificador externo
-     * @return pedido encontrado ou empty
-     */
+    /** Busca pedido por ID externo. */
     Optional<Order> findByExternalOrderId(String externalOrderId);
 
-    /**
-     * Verifica se existe pedido com o ID externo.
-     *
-     * @param externalOrderId identificador externo
-     * @return true se existir
-     */
+    /** Verifica se existe pedido com o ID externo. */
     boolean existsByExternalOrderId(String externalOrderId);
 
-    /**
-     * Busca pedidos por status.
-     *
-     * @param status status do pedido
-     * @return lista de pedidos
-     */
+    /** Busca pedidos por status. */
     List<Order> findByStatus(OrderStatus status);
 
-    /**
-     * Busca pedidos criados em um período.
-     *
-     * @param startDate data inicial
-     * @param endDate data final
-     * @return lista de pedidos
-     */
+    /** Busca pedidos criados em um período. */
     List<Order> findByCreatedAtBetween(Instant startDate, Instant endDate);
 
-    /**
-     * Busca todos os pedidos.
-     *
-     * @return lista de todos os pedidos
-     */
+    /** Busca todos os pedidos. */
     List<Order> findAll();
 
-    /**
-     * Remove um pedido por ID.
-     *
-     * @param id identificador único
-     */
+    /** Remove um pedido por ID. */
     void deleteById(UUID id);
 
-    /**
-     * Conta pedidos por status.
-     *
-     * @param status status do pedido
-     * @return quantidade de pedidos
-     */
+    /** Conta pedidos por status. */
     long countByStatus(OrderStatus status);
 
-    /**
-     * Busca pedido por ID com itens carregados.
-     *
-     * @param id identificador único
-     * @return pedido com itens ou empty
-     */
+    /** Busca pedido por ID com itens carregados. */
     Optional<Order> findByIdWithItems(UUID id);
 }

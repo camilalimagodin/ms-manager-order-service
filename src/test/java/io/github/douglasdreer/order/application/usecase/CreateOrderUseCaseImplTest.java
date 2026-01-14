@@ -5,17 +5,14 @@ import io.github.douglasdreer.order.application.dto.OrderResponse;
 import io.github.douglasdreer.order.application.mapper.OrderApplicationMapper;
 import io.github.douglasdreer.order.application.port.output.OrderRepositoryPort;
 import io.github.douglasdreer.order.domain.entity.Order;
-import io.github.douglasdreer.order.domain.entity.OrderItem;
 import io.github.douglasdreer.order.domain.exception.DuplicateOrderException;
 import io.github.douglasdreer.order.domain.exception.ValidationException;
-import io.github.douglasdreer.order.domain.valueobject.Money;
 import io.github.douglasdreer.order.domain.valueobject.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -23,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,17 +65,14 @@ class CreateOrderUseCaseImplTest {
         @Test
         @DisplayName("deve criar pedido com sucesso")
         void shouldCreateOrderSuccessfully() {
-            // Arrange
+            // Preparar
             when(orderRepository.existsByExternalOrderId(anyString())).thenReturn(false);
-            when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
-                Order order = invocation.getArgument(0);
-                return order;
-            });
+            when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-            // Act
+            // Agir
             OrderResponse response = useCase.execute(validCommand);
 
-            // Assert
+            // Verificar
             assertThat(response).isNotNull();
             assertThat(response.getExternalOrderId()).isEqualTo("EXT-001");
             assertThat(response.getStatus()).isEqualTo(OrderStatus.CALCULATED.name());
@@ -93,7 +86,7 @@ class CreateOrderUseCaseImplTest {
         @Test
         @DisplayName("deve calcular total corretamente com múltiplos itens")
         void shouldCalculateTotalCorrectly() {
-            // Arrange
+            // Preparar
             CreateOrderCommand commandMultipleItems = CreateOrderCommand.builder()
                     .externalOrderId("EXT-002")
                     .items(List.of(
@@ -117,10 +110,10 @@ class CreateOrderUseCaseImplTest {
             when(orderRepository.existsByExternalOrderId(anyString())).thenReturn(false);
             when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-            // Act
+            // Agir
             OrderResponse response = useCase.execute(commandMultipleItems);
 
-            // Assert
+            // Verificar
             // 50*2 + 30*3 = 100 + 90 = 190
             assertThat(response.getTotalAmount()).isEqualByComparingTo(new BigDecimal("190.00"));
             assertThat(response.getItems()).hasSize(2);
@@ -129,10 +122,10 @@ class CreateOrderUseCaseImplTest {
         @Test
         @DisplayName("deve lançar exceção para pedido duplicado")
         void shouldThrowExceptionForDuplicateOrder() {
-            // Arrange
+            // Preparar
             when(orderRepository.existsByExternalOrderId("EXT-001")).thenReturn(true);
 
-            // Act & Assert
+            // Agir & Assert
             assertThatThrownBy(() -> useCase.execute(validCommand))
                     .isInstanceOf(DuplicateOrderException.class)
                     .hasMessageContaining("EXT-001");

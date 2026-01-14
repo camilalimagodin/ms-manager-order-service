@@ -129,25 +129,359 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 
 ## 3. Métricas (Micrometer + Prometheus)
 
-### 3.1 Configuração
+### 3.1 Configuração Completa
 
 ```yaml
-# application.yml
+# application.yml - Configuração avançada de métricas
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
-        include: health,info,prometheus,metrics
+        include: health,info,prometheus,metrics,env,configprops
+        exclude: shutdown
+  
   endpoint:
     health:
       show-details: always
+      show-components: always
       probes:
-        enabled: true
+        enabled: true  # Kubernetes liveness/readiness
+      group:
+        readiness:
+          include: db,rabbit,diskSpace
+        liveness:
+          include: ping
+    
+    metrics:
+      enabled: true
+    
+    prometheus:
+      enabled: true
+  
+  # Configuração de métricas
   metrics:
     tags:
       application: ${spring.application.name}
+      environment: ${spring.profiles.active}
+      instance: ${HOSTNAME:localhost}
+    
+    enable:
+      jvm: true
+      process: true
+      system: true
+      logback: true
+      http: true
+    
     distribution:
       percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+      slo:
+        http.server.requests: 10ms,50ms,100ms,200ms,500ms,1s,2s
+    
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
+            percentiles: 0.5,0.95,0.99
+
+# Info endpoint
+info:
+  app:
+    name: ${spring.application.name}
+    description: Order Management Service
+    version: ${project.version}
+    java:
+      version: ${java.version}
+    spring:
+      version: ${spring-boot.version}
+```
+
+### 3.2 Métricas Customizadas - Código Real
+
+```java
+/**
+ * Service para tracking de métricas de negócio
+ */
+@Service
+@Slf4j
+public class OrderMetricsService {
+    
+    private final MeterRegistry meterRegistry;
+    private final Counter ordersCreatedCounter;
+    private final Counter ordersProcessedCounter;
+    private final Counter ordersFailedCounter;
+    private final Timer orderProcessingTimer;
+    private final DistributionSummary orderValueSummary;
+    private final Gauge activeOrdersGauge;
+    
+    @Autowired
+    public OrderMetricsService(MeterRegistry meterRegistry, 
+                               OrderRepositoryPort orderRepository) {
+        this.meterRegistry = meterRegistry;
+        
+        // Counter: Total de pedidos criados
+        this.ordersCreatedCounter = Counter.builder("orders.created")
+                .description("Total de pedidos criados")
+                .tag("type", "business")
+                .register(meterRegistry);
+        
+        // Counter: Pedidos processados com sucesso
+        this.ordersProcessedCounter = Counter.builder("orders.processed")
+                .description("Total de pedidos processados")
+                .tag("type", "business")
+                .register(meterRegistry);
+        
+        // Counter: Pedidos com falha
+        this.ordersFailedCounter = Counter.builder("orders.failed")
+                .description("Total de pedidos com falha")
+                .tag("type", "business")
+                .register(meterRegistry);
+        
+        // Timer: Tempo de processamento
+        this.orderProcessingTimer = Timer.builder("orders.processing.time")
+                .description("Tempo de processamento de pedidos")
+                .tag("type", "performance")
+                .sla(Duration.ofMillis(100), 
+                     Duration.ofMillis(500),
+                     Duration.ofSeconds(1))
+                .minimumExpectedValue(Duration.ofMillis(10))
+                .maximumExpectedValue(Duration.ofSeconds(5))
+                .register(meterRegistry);
+        
+        // Distribution Summary: Valor dos pedidos
+        this.orderValueSummary = DistributionSummary
+                .builder("orders.value")
+                .description("Distribuição de valores de pedidos")
+                .baseUnit("BRL")
+                .tag("type", "business")
+                .scale(1.0)
+                .minimumExpectedValue(1.0)
+                .maximumExpectedValue(10000.0)
+                .register(meterRegistry);
+        
+        // Gauge: Pedidos ativos (dinâmico)
+        this.activeOrdersGauge = Gauge.builder("orders.active", 
+                () -> orderRepository.countByStatus(OrderStatus.PROCESSING))
+                .description("Número de pedidos em processamento")
+                .tag("status", "processing")
+                .register(meterRegistry);
+    }
+    
+    /**
+     * Registra criação de pedido
+     */
+    public void recordOrderCreated(Order order) {
+        ordersCreatedCounter.increment();
+        orderValueSummary.record(order.getTotalAmount().getAmount().doubleValue());
+        
+        // Métrica por status
+        meterRegistry.counter("orders.by.status", 
+                "status", order.getStatus().name())
+                .increment();
+        
+        log.debug("📊 Métrica: Pedido criado - ID: {}, Valor: {}", 
+                order.getId(), order.getTotalAmount());
+    }
+    
+    /**
+     * Registra processamento com timer
+     */
+    public <T> T recordProcessing(Supplier<T> operation) {
+        return orderProcessingTimer.record(() -> {
+            try {
+                T result = operation.get();
+                ordersProcessedCounter.increment();
+                return result;
+            } catch (Exception e) {
+                ordersFailedCounter.increment();
+                throw e;
+            }
+        });
+    }
+    
+    /**
+     * Registra erro com tags customizadas
+     */
+    public void recordError(String errorType, Exception e) {
+        Counter.builder("orders.errors")
+                .description("Erros no processamento de pedidos")
+                .tag("error_type", errorType)
+                .tag("exception", e.getClass().getSimpleName())
+                .register(meterRegistry)
+                .increment();
+    }
+}
+
+/**
+ * Uso no Use Case
+ */
+@Service
+@RequiredArgsConstructor
+public class ProcessOrderUseCaseImpl implements ProcessOrderUseCase {
+    
+    private final OrderRepositoryPort orderRepository;
+    private final OrderMetricsService metricsService;
+    
+    @Override
+    public OrderResponse process(UUID orderId) {
+        // Usa timer automático
+        return metricsService.recordProcessing(() -> {
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new OrderNotFoundException(orderId));
+            
+            order.process();
+            Order savedOrder = orderRepository.save(order);
+            
+            return OrderApplicationMapper.toResponse(savedOrder);
+        });
+    }
+}
+```
+
+### 3.3 Dashboard Prometheus - Queries PromQL
+
+```promql
+# Taxa de criação de pedidos (por minuto)
+rate(orders_created_total[1m])
+
+# Taxa de sucesso de processamento
+rate(orders_processed_total[5m]) / rate(orders_created_total[5m])
+
+# Percentil 95 de tempo de processamento
+histogram_quantile(0.95, 
+  rate(orders_processing_time_seconds_bucket[5m])
+)
+
+# Pedidos em processamento (gauge)
+orders_active{status="processing"}
+
+# Média de valor de pedidos (últimos 5 min)
+avg_over_time(orders_value_sum[5m]) / avg_over_time(orders_value_count[5m])
+
+# Taxa de erro
+rate(orders_errors_total[5m])
+
+# Latência P50, P95, P99
+histogram_quantile(0.50, rate(http_server_requests_seconds_bucket[5m]))
+histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m]))
+histogram_quantile(0.99, rate(http_server_requests_seconds_bucket[5m]))
+
+# Throughput de API (requests/sec)
+sum(rate(http_server_requests_seconds_count[1m])) by (uri, method)
+
+# Taxa de erro HTTP (4xx e 5xx)
+sum(rate(http_server_requests_seconds_count{status=~"4..|5.."}[5m])) 
+  / 
+sum(rate(http_server_requests_seconds_count[5m]))
+
+# Uso de memória JVM
+jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}
+
+# Threads ativas
+jvm_threads_live_threads
+
+# Garbage Collection rate
+rate(jvm_gc_pause_seconds_count[5m])
+
+# Connection pool (HikariCP)
+hikaricp_connections_active / hikaricp_connections_max
+
+# RabbitMQ - Mensagens consumidas
+rate(rabbitmq_consumed_total[1m])
+
+# RabbitMQ - Mensagens rejeitadas
+rate(rabbitmq_rejected_total[1m])
+```
+
+### 3.4 Alertas Prometheus (prometheus-alerts.yml)
+
+```yaml
+groups:
+  - name: order-service-alerts
+    interval: 30s
+    rules:
+      # Alta taxa de erro
+      - alert: HighErrorRate
+        expr: |
+          rate(orders_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: critical
+          service: order-service
+        annotations:
+          summary: "Taxa de erro elevada no Order Service"
+          description: "Taxa de erro: {{ $value }} erros/s nos últimos 5 min"
+      
+      # Latência alta (P95 > 1s)
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            rate(orders_processing_time_seconds_bucket[5m])
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "Latência P95 acima de 1 segundo"
+          description: "P95: {{ $value }}s"
+      
+      # Memory usage alto
+      - alert: HighMemoryUsage
+        expr: |
+          jvm_memory_used_bytes{area="heap"} 
+            / 
+          jvm_memory_max_bytes{area="heap"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "Uso de memória heap acima de 90%"
+          description: "Heap usage: {{ $value | humanizePercentage }}"
+      
+      # Database connection pool esgotado
+      - alert: DatabasePoolExhausted
+        expr: |
+          hikaricp_connections_active 
+            / 
+          hikaricp_connections_max > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          service: order-service
+        annotations:
+          summary: "Pool de conexões PostgreSQL quase esgotado"
+          description: "Uso: {{ $value | humanizePercentage }}"
+      
+      # RabbitMQ - Dead Letter Queue crescendo
+      - alert: DLQGrowing
+        expr: |
+          rabbitmq_queue_messages{queue="order.created.dlq"} > 100
+        for: 10m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "Dead Letter Queue acumulando mensagens"
+          description: "DLQ size: {{ $value }} mensagens"
+      
+      # Service down
+      - alert: ServiceDown
+        expr: |
+          up{job="order-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: order-service
+        annotations:
+          summary: "Order Service está DOWN"
+          description: "Serviço não responde há mais de 1 minuto"
+```
         http.server.requests: true
       sla:
         http.server.requests: 50ms, 100ms, 200ms, 500ms

@@ -13,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementação do caso de uso de criação de pedido.
- */
+/** Caso de uso para criação de pedidos. */
 @Service
 @RequiredArgsConstructor
 @Slf4j

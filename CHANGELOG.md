@@ -9,6 +9,73 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ### Adicionado
 
+#### 📚 Documentação Técnica Melhorada (v2.0)
+- **docs/arquitetura.md** - Transformado com:
+  - Diagrama hexagonal detalhado com fluxo real de dados (80+ linhas Mermaid)
+  - Diagrama de sequência completo com 6 participantes mostrando fluxo de Order (150+ linhas)
+  - Código real da Order entity (200+ linhas) com factory methods e state machine
+  - Money value object com operações aritméticas
+  - Tabela de princípios com exemplos concretos
+
+- **docs/integracao.md** - Documentação RabbitMQ production-ready:
+  - Topologia RabbitMQ com DLQ, TTL e prefetch (detalhado)
+  - Arquivo YAML completo com configuração de retry, concorrência e timeout
+  - Classe RabbitMQConfig.java (200+ linhas) com retry exponencial e publisher confirms
+  - Estratégia de processamento de mensagens duplicadas
+
+- **docs/observabilidade.md** - Monitoramento e observabilidade:
+  - Configuração completa de actuator endpoints (health, metrics, probes)
+  - Implementação OrderMetricsService com Counters, Timers, Gauges (150+ linhas)
+  - 15+ PromQL queries para dashboards (rate, histogram_quantile, etc)
+  - Arquivo prometheus-alerts.yml com 6 alert rules (high error rate, latency, memory, etc)
+  - Estratégia de logging estruturado com JSON e MDC
+
+- **docs/persistencia.md** - Performance e escalabilidade:
+  - 8 índices PostgreSQL otimizados com comentários explicativos
+  - OrderJpaRepository completo (10+ queries custom)
+  - 3 EXPLAIN ANALYZE examples com tempos reais (0.921ms, 3.289ms, 12.489ms)
+  - Configuração HikariCP tuning (pool size, timeouts, leak detection)
+  - Hibernat tuning (batch size, fetch size, plan cache)
+  - Diagrama de escalabilidade horizontal (Load Balancer + 3 replicas + Redis)
+  - Métricas de capacidade: 150k-200k pedidos/dia, 500 req/s, <100ms P95
+
+- **docs/configuracao-ambiente.md** - Guia de ambiente completo:
+  - Seção de segurança com Kubernetes Secrets e Jasypt
+  - Troubleshooting com 5 problemas comuns + soluções detalhadas
+  - Docker Compose completo com health checks e volumes
+  - Variáveis de ambiente para dev/staging/prod
+
+- **docs/testes.md** - Estratégias de teste detalhadas:
+  - Tabela de métricas de qualidade (cobertura por camada, tempo execução)
+  - MoneyTest completo (criação, operações aritméticas, imutabilidade)
+  - CreateOrderUseCaseTest com mocks e verificações
+  - OrderControllerTest com MockMvc e padrão BDD
+  - 128 testes total com 100% de taxa de sucesso
+
+#### 🌐 Internacionalização e Localização
+- Tradução completa de todos os comentários JavaDoc para PT_BR
+- Mensagens de exceção traduzidas para português brasileiro
+- Logs de aplicação em português
+- Anotações @DisplayName dos testes em PT_BR
+- Mensagens de validação Bean Validation em português
+- Eventos de mensageria com comentários em PT_BR:
+  - OrderCreatedEvent
+  - OrderStatusChangedEvent
+- Comentários BDD (Given/When/Then → Dado/Quando/Então)
+- Comentários AAA (Arrange/Act/Assert → Preparar/Agir/Verificar)
+
+#### 🧪 Testes de Mensageria
+- Testes unitários para OrderMessageConsumer (7 testes)
+- Testes unitários para OrderEventPublisher (6 testes)
+- Total de **128 testes** com 100% de taxa de sucesso
+- Validação de tratamento de exceções em mensageria
+- Testes de mapeamento de eventos para comandos
+
+#### 📦 Migrations
+- V3__create_indexes.sql - Índices para performance
+- V4__create_processed_messages_table.sql - Tabela para idempotência
+- Estrutura de dados para prevenir processamento duplicado
+
 #### 🌐 REST API & Documentação
 - REST API Layer com 8 endpoints documentados (CRUD completo)
 - Swagger/OpenAPI 3.0 com SpringDoc (acessível em `/swagger-ui.html`)
@@ -26,11 +93,16 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - OpenApiConfig com metadados completos da API
 
 #### 🧪 Testes
-- 14 testes unitários para REST Controllers com MockMvc
-- 22 testes unitários para Application Layer (Use Cases)
-- Total de 36 testes com 100% de taxa de sucesso
+- **128 testes unitários** com 100% de taxa de sucesso:
+  - 7 testes para OrderMessageConsumer
+  - 6 testes para OrderEventPublisher
+  - 14 testes para REST Controllers com MockMvc
+  - 22 testes para Application Layer (Use Cases)
+  - 79 testes adicionais incluindo domain, infrastructure e outros
 - Organização de testes com @Nested para melhor estrutura
 - Padrão AAA (Arrange-Act-Assert) aplicado consistentemente
+- Padrão BDD (Given-When-Then) nos testes de controller
+- Tradução de todos os DisplayName para PT_BR
 
 #### 🎯 Application Layer
 - Application Layer completa: DTOs, Ports, Mappers e Use Cases
