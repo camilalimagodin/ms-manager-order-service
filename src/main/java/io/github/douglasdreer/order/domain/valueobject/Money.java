@@ -18,11 +18,11 @@ import java.util.Objects;
  */
 public final class Money {
     
-    public static final Currency DEFAULT_CURRENCY = Currency.getInstance("BRL");
-    public static final Money ZERO = new Money(BigDecimal.ZERO, DEFAULT_CURRENCY);
-    
     private static final int SCALE = 2;
     private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
+    
+    public static final Currency DEFAULT_CURRENCY = Currency.getInstance("BRL");
+    public static final Money ZERO = new Money(BigDecimal.ZERO, DEFAULT_CURRENCY);
     
     private final BigDecimal amount;
     private final Currency currency;

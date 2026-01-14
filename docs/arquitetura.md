@@ -72,39 +72,42 @@ flowchart TB
 ### 2.1 Estrutura de Pacotes
 
 ```
-src/main/java/com/order/
+src/main/java/io/github/douglasdreer/order/
 ├── domain/                    # 🟡 Núcleo - Regras de negócio
-│   ├── entity/                # Entidades de domínio
-│   ├── valueobject/           # Value Objects imutáveis
-│   ├── service/               # Domain Services
-│   ├── repository/            # Portas de saída (interfaces)
-│   └── exception/             # Exceções de domínio
+│   ├── entity/                # ✅ Order, OrderItem
+│   ├── valueobject/           # ✅ Money, OrderStatus, ExternalOrderId, ProductId
+│   ├── service/               # Domain Services (futuro)
+│   └── exception/             # ✅ ValidationException, OrderNotFoundException
 │
 ├── application/               # 🟢 Casos de Uso
-│   ├── usecase/               # Implementação dos casos de uso
+│   ├── usecase/               # ✅ CreateOrderUseCaseImpl, GetOrderUseCaseImpl, ProcessOrderUseCaseImpl
 │   ├── port/
-│   │   ├── input/             # Portas de entrada (interfaces)
-│   │   └── output/            # Portas de saída adicionais
-│   └── dto/                   # DTOs internos da aplicação
+│   │   ├── input/             # ✅ CreateOrderUseCase, GetOrderUseCase, ProcessOrderUseCase
+│   │   └── output/            # ✅ OrderRepositoryPort
+│   ├── dto/                   # ✅ CreateOrderCommand, OrderResponse
+│   └── mapper/                # ✅ OrderApplicationMapper
 │
-├── infrastructure/            # 🔵 Frameworks e Drivers
-│   ├── persistence/
-│   │   ├── entity/            # Entidades JPA
-│   │   ├── repository/        # Implementações JPA
-│   │   └── mapper/            # Mappers Domain ↔ JPA
-│   ├── messaging/
-│   │   ├── consumer/          # Consumers RabbitMQ
-│   │   ├── publisher/         # Publishers (se necessário)
-│   │   └── config/            # Configurações de filas
-│   └── config/                # Configurações Spring
+├── adapter/                   # 🔵 Adapters (Hexagonal Architecture)
+│   ├── input/
+│   │   └── web/
+│   │       ├── controller/    # ✅ OrderController (8 endpoints)
+│   │       ├── config/        # ✅ OpenApiConfig
+│   │       └── exception/     # ✅ GlobalExceptionHandler (RFC 7807)
+│   └── output/
+│       └── persistence/
+│           ├── entity/        # ✅ OrderEntity, OrderItemEntity
+│           ├── repository/    # ✅ OrderJpaRepository, OrderRepositoryAdapter
+│           └── mapper/        # ✅ OrderPersistenceMapper
 │
-└── interfaces/                # 🟣 Interface Adapters
-    ├── rest/
-    │   ├── controller/        # Controllers REST
-    │   ├── dto/               # Request/Response DTOs
-    │   └── mapper/            # Mappers DTO ↔ Domain
-    └── advice/                # Global Exception Handlers
+└── OrderApplication.java      # ✅ Spring Boot Application
 ```
+
+**Status de Implementação:**
+- ✅ **Domain Layer**: Completo
+- ✅ **Application Layer**: Completo (22 testes)
+- ✅ **Persistence Adapter**: Completo
+- ✅ **Web Adapter (REST)**: Completo (14 testes)
+- 🔄 **Messaging Adapter**: Pendente (próxima task)
 
 ### 2.2 Diagrama de Componentes
 

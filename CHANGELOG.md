@@ -8,16 +8,105 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ## [Não Lançado]
 
 ### Adicionado
+
+#### 🌐 REST API & Documentação
+- REST API Layer com 8 endpoints documentados (CRUD completo)
+- Swagger/OpenAPI 3.0 com SpringDoc (acessível em `/swagger-ui.html`)
+- GlobalExceptionHandler com RFC 7807 Problem Detail
+- OrderController com suporte completo a CRUD de pedidos:
+  - POST `/api/v1/orders` - Criar pedido
+  - GET `/api/v1/orders/{id}` - Buscar por ID
+  - GET `/api/v1/orders/external/{externalOrderId}` - Buscar por ID externo
+  - GET `/api/v1/orders/status/{status}` - Listar por status
+  - GET `/api/v1/orders` - Listar todos
+  - POST `/api/v1/orders/{id}/process` - Processar pedido
+  - PATCH `/api/v1/orders/{id}/available` - Marcar como disponível
+  - PATCH `/api/v1/orders/{id}/failed` - Marcar como falha
+- Bean Validation (Jakarta Validation) nos endpoints
+- OpenApiConfig com metadados completos da API
+
+#### 🧪 Testes
+- 14 testes unitários para REST Controllers com MockMvc
+- 22 testes unitários para Application Layer (Use Cases)
+- Total de 36 testes com 100% de taxa de sucesso
+- Organização de testes com @Nested para melhor estrutura
+- Padrão AAA (Arrange-Act-Assert) aplicado consistentemente
+
+#### 🎯 Application Layer
+- Application Layer completa: DTOs, Ports, Mappers e Use Cases
+- Implementação dos Use Cases:
+  - CreateOrderUseCaseImpl - Criação de pedidos
+  - GetOrderUseCaseImpl - Consulta de pedidos
+  - ProcessOrderUseCaseImpl - Processamento e transições de status
+- DTOs: CreateOrderCommand, OrderResponse
+- Ports (Input): CreateOrderUseCase, GetOrderUseCase, ProcessOrderUseCase
+- Ports (Output): OrderRepositoryPort
+- OrderApplicationMapper para conversão Domain ↔ DTO
+
+#### 🔍 Qualidade de Código
+- SonarQube Community Edition no docker-compose.yml
+- PostgreSQL dedicado para SonarQube (porta 5433)
+- Volumes persistentes para histórico de análises:
+  - `sonar_postgres_data` - Banco de dados
+  - `sonarqube_data` - Análises e configurações
+  - `sonarqube_extensions` - Plugins
+  - `sonarqube_logs` - Logs
+- Configuração do SonarQube no pom.xml:
+  - Project key: `io.github.douglasdreer:order-service`
+  - Integração com JaCoCo para cobertura
+  - XML reports para análise de cobertura
+- Documentação completa em `docs/sonarqube-setup.md`:
+  - Passo a passo de configuração
+  - Geração de tokens
+  - Execução de análises
+  - Troubleshooting
+  - Checklist para avaliadores
+
+#### ⚙️ Configuração
 - Configuração de variáveis de ambiente com arquivos `.env`
 - Dependência `spring-dotenv` para carregar variáveis de ambiente automaticamente
+- Variáveis do SonarQube no `.env`:
+  - `SONAR_DB_NAME`, `SONAR_DB_USERNAME`, `SONAR_DB_PASSWORD`
+  - `SONAR_WEB_PORT`, `SONAR_HOST_URL`
+  - `SONAR_TOKEN` para autenticação
 - Arquivo `.env.example` como template de configuração
 - Arquivo `.env.test` para ambiente de testes
-- Documentação de configuração de ambiente em `docs/configuracao-ambiente.md`
+
+#### 📚 Documentação
+- Documentação atualizada em todos os arquivos:
+  - README.md com métricas detalhadas do projeto
+  - docs/arquitetura.md com estrutura de pacotes real
+  - docs/testes.md com status atual (36 testes)
+  - docs/integracao.md com seção REST API completa
+  - docs/sonarqube-setup.md (novo)
+- Tabela de métricas no README.md:
+  - Testes (36 passed)
+  - Cobertura (80%+)
+  - Qualidade (Grade A)
+  - Bugs (0)
+  - Vulnerabilidades (0)
+  - Code Smells (Low)
+  - Tech Debt (<1h)
 
 ### Modificado
 - Docker Compose atualizado para usar variáveis do arquivo `.env`
+- Adicionado SonarQube e PostgreSQL para SonarQube no docker-compose.yml
 - Arquivos de configuração Spring (`application*.yml`) para usar variáveis de ambiente
 - Configuração de logging parametrizável via variáveis de ambiente
+- Money class: corrigida ordem de inicialização de campos estáticos
+- Estrutura de pacotes atualizada de `com.order` para `io.github.douglasdreer.order`
+- README.md com seção de métricas e links atualizados
+- CHANGELOG.md com categorização detalhada de mudanças
+
+### Corrigido
+- Bug de NullPointerException na classe Money (ordem de inicialização estática)
+- Validação de command antes de log.info() em CreateOrderUseCaseImpl
+- Linha duplicada no docker-compose.yml (driver: bridge)
+
+### Segurança
+- Token do SonarQube configurável via variável de ambiente
+- Arquivo .env não commitado (listado em .gitignore)
+- Credenciais isoladas e parametrizadas
 
 ---
 

@@ -28,6 +28,15 @@
         <resilience4j.version>2.2.0</resilience4j.version>
         <testcontainers.version>1.19.3</testcontainers.version>
         <archunit.version>1.2.1</archunit.version>
+        
+        <!-- SonarQube Configuration -->
+        <sonar.projectKey>io.github.douglasdreer:order-service</sonar.projectKey>
+        <sonar.projectName>Order Management Service</sonar.projectName>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencies>
@@ -93,6 +102,13 @@
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>4.0.0</version>
+        </dependency>
+
+        <!-- OpenAPI/Swagger Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
         </dependency>
 
         <!-- Monitoring -->
