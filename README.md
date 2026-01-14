@@ -120,42 +120,7 @@ O **Order Management Service** é um microserviço robusto desenvolvido para ger
 
 ## 🏗️ Arquitetura
 
-```flowchart TB
-
-subgraph Order_Service["Order Service"]
-    direction TB
-
-    subgraph Interfaces
-        direction LR
-        REST["REST API (Web)"]
-        MSG["Messaging (RabbitMQ)"]
-        ACT["Actuator (Health/Metrics)"]
-    end
-
-    Interfaces --> Application
-
-    subgraph Application["Application Layer"]
-        UC["Use Cases / Services"]
-    end
-
-    Application --> Domain
-
-    subgraph Domain["Domain Layer"]
-        ENT["Entities / Value Objects / Exceptions"]
-    end
-
-    Domain --> Infrastructure
-
-    subgraph Infrastructure["Infrastructure Layer"]
-        REP["Repositories"]
-        CONF["Messaging / Config"]
-    end
-end
-
-Infrastructure --> DB[(PostgreSQL)]
-Infrastructure --> MQ[(RabbitMQ)]
-```
-
+![Diagrama de Arquitetura](docs/images/diagrama.svg)
 ---
 
 ## 🚀 Começando
