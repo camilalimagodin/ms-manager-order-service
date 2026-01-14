@@ -44,14 +44,21 @@ spring:
     virtual-host: /
     listener:
       simple:
-        acknowledge-mode: manual
+        acknowledge-mode: auto
         prefetch: 10
         retry:
           enabled: false
     publisher-confirm-type: correlated
     publisher-returns: true
+    template:
+      mandatory: true
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 3
+        multiplier: 2.0
 
-# Server Configuration
+# Configuração do Servidor
 server:
   port: ${SERVER_PORT:8080}
   servlet:
@@ -60,7 +67,7 @@ server:
     enabled: true
     mime-types: application/json
 
-# Actuator Configuration
+# Configuração do Actuator
 management:
   endpoints:
     web:
@@ -80,7 +87,7 @@ management:
     tags:
       application: ${spring.application.name}
 
-# Resilience4j Circuit Breaker Configuration
+# Configuração do Resilience4j Circuit Breaker
 resilience4j:
   circuitbreaker:
     instances:
@@ -104,7 +111,7 @@ resilience4j:
         waitDurationInOpenState: 30s
         permittedNumberOfCallsInHalfOpenState: 3
 
-# Logging Configuration
+# Configuração de Logging
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
@@ -115,20 +122,22 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-# Application Custom Properties
+# Configuração do RabbitMQ
+rabbitmq:
+  exchanges:
+    order: order.exchange
+    order-dlx: order.dlx
+  queues:
+    order-created: order.created.queue
+    order-created-dlq: order.created.dlq
+    order-status-changed: order.status.changed.queue
+  routing-keys:
+    order-created: order.created
+    status-changed: order.status.changed
+
+# Propriedades Customizadas da Aplicação
 app:
   messaging:
-    order:
-      exchange: order.exchange
-      queue:
-        main: order.created.queue
-        dlq: order.created.dlq
-        retry-5s: order.retry.queue.5s
-        retry-30s: order.retry.queue.30s
-        retry-5min: order.retry.queue.5min
-        parking: order.parking.queue
-      routing-key: order.created
-      max-retries: 3
     deduplication:
       enabled: true
       ttl-hours: 24
