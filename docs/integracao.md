@@ -102,52 +102,275 @@ Todos os erros seguem o padrão Problem Detail com mensagens em PT_BR:
 
 ## 2. Integração com Produto Externo A (RabbitMQ)
 
-### 2.1 Topologia de Filas
+### 2.1 Topologia Completa de Filas
 
 ```mermaid
-flowchart TB
+graph TB
     subgraph "Produto Externo A"
-        P[Publisher]
+        P["Publisher<br/>📤 Publica OrderCreatedEvent"]
     end
     
-    subgraph "RabbitMQ"
-        EX[order.exchange<br/>Type: topic]
-        Q1[order.created.queue]
-        DLX[order.dlx<br/>Dead Letter Exchange]
-        DLQ[order.created.dlq]
+    subgraph "RabbitMQ Broker"
+        EX["order.exchange<br/>Type: topic<br/>Durable: true"]
+        
+        subgraph "Main Flow"
+            Q1["order.created.queue<br/>🔹 TTL: 60s<br/>🔹 Max Length: 10000<br/>🔹 DLX: order.dlx"]
+        end
+        
+        subgraph "Dead Letter Flow"
+            DLX["order.dlx<br/>Type: direct<br/>Durable: true"]
+            DLQ["order.created.dlq<br/>🔴 Persist forever<br/>🔴 Manual intervention"]
+        end
+        
+        subgraph "Status Events"
+            Q2["order.status.changed.queue<br/>🟢 Outbound events<br/>🟢 For external systems"]
+        end
     end
     
     subgraph "Order Service"
-        C1[OrderMessageConsumer]
-        C2[DLQProcessor]
+        C1["OrderMessageConsumer<br/>✅ 7 unit tests<br/>@RabbitListener<br/>Prefetch: 10<br/>ACK: Manual"]
+        UC["CreateOrderUseCase<br/>→ Validate<br/>→ Check duplicates<br/>→ Create order<br/>→ Publish event"]
+        PUB["OrderEventPublisher<br/>✅ 6 unit tests<br/>Publishes status changes"]
+        C2["DLQMonitor<br/>⚠️ Manual retry<br/>⚠️ Alert on threshold"]
     end
     
-    P -->|order.created| EX
-    EX -->|order.created| Q1
-    Q1 -->|Consume| C1
-    Q1 -.->|Reject/Expire| DLX
-    DLX --> DLQ
-    DLQ -.->|Manual| C2
+    subgraph "Persistence"
+        DB[("PostgreSQL<br/>orders<br/>order_items<br/>processed_messages")]
+    end
+    
+    P -->|"Routing Key:<br/>order.created"| EX
+    EX -->|"Bind:<br/>order.created"| Q1
+    Q1 -->|"Consumer<br/>Tag: order-consumer-1"| C1
+    C1 -->|"Process"| UC
+    UC -->|"Save"| DB
+    UC -->|"Publish"| PUB
+    PUB -->|"Routing Key:<br/>order.status.changed"| EX
+    EX -->|"Bind"| Q2
+    
+    Q1 -.->|"Reject/<br/>TTL Expired/<br/>Max Retries"| DLX
+    DLX -->|"Route to DLQ"| DLQ
+    DLQ -.->|"Manual<br/>Investigation"| C2
+    C2 -.->|"Republish<br/>after fix"| Q1
+    
+    style Q1 fill:#90EE90,stroke:#006400,stroke-width:2px
+    style DLQ fill:#FFB6C1,stroke:#8B0000,stroke-width:2px
+    style Q2 fill:#87CEEB,stroke:#00008B,stroke-width:2px
+    style C1 fill:#FFD700,stroke:#B8860B,stroke-width:2px
 ```
 
-### 2.2 Configuração das Filas
+### 2.2 Configuração Detalhada das Filas
 
 ```yaml
-# application.yml
+# application.yml - Configuração completa do RabbitMQ
 spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    
+    # Configuração de conexão
+    connection-timeout: 10000  # 10 segundos
+    requested-heartbeat: 30    # 30 segundos
+    
+    # Pool de conexões
+    cache:
+      connection:
+        mode: channel
+        size: 25  # Max 25 connections
+      channel:
+        size: 50  # Max 50 channels per connection
+        checkout-timeout: 5000
+    
+    # Configuração do listener
     listener:
       simple:
-        acknowledge-mode: manual
-        prefetch: 10
+        acknowledge-mode: manual  # ACK manual para controle fino
+        prefetch: 10             # Busca 10 mensagens por vez
+        concurrency: 3           # 3 consumers concorrentes
+        max-concurrency: 10      # Máximo 10 em picos
+        
+        # Retry configuration
         retry:
           enabled: true
-          initial-interval: 1000ms
-          max-attempts: 3
+          initial-interval: 1000ms  # 1 segundo
+          multiplier: 2.0           # Exponential backoff
+          max-interval: 10000ms     # Máximo 10 segundos
+          max-attempts: 3           # 3 tentativas
+          stateless: true
+        
+        # Dead Letter
+        default-requeue-rejected: false  # Não reenfileira, vai pra DLQ
+
+# Configuração customizada das filas
+rabbitmq:
+  exchanges:
+    order: order.exchange
+  queues:
+    order-created: order.created.queue
+    order-status-changed: order.status.changed.queue
+  routing-keys:
+    order-created: order.created
+    status-changed: order.status.changed
+  dlx:
+    exchange: order.dlx
+    queue: order.created.dlq
+```
+
+### 2.3 Código Real: RabbitMQ Configuration
+
+```java
+@Configuration
+@Slf4j
+public class RabbitMQConfig {
+    
+    // Constantes de configuração
+    public static final String ORDER_EXCHANGE = "order.exchange";
+    public static final String ORDER_DLX = "order.dlx";
+    public static final String ORDER_CREATED_QUEUE = "order.created.queue";
+    public static final String ORDER_CREATED_DLQ = "order.created.dlq";
+    public static final String ORDER_STATUS_CHANGED_QUEUE = "order.status.changed.queue";
+    public static final String ORDER_CREATED_ROUTING_KEY = "order.created";
+    public static final String ORDER_STATUS_CHANGED_ROUTING_KEY = "order.status.changed";
+    
+    private static final int MESSAGE_TTL_MS = 60000; // 1 minuto
+    private static final int MAX_QUEUE_LENGTH = 10000;
+    
+    /**
+     * Exchange principal - Topic para roteamento flexível
+     */
+    @Bean
+    public TopicExchange orderExchange() {
+        log.info("🔧 Criando exchange: {}", ORDER_EXCHANGE);
+        return ExchangeBuilder
+                .topicExchange(ORDER_EXCHANGE)
+                .durable(true)
+                .build();
+    }
+    
+    /**
+     * Dead Letter Exchange - Para mensagens com falha
+     */
+    @Bean
+    public DirectExchange deadLetterExchange() {
+        log.info("⚠️ Criando Dead Letter Exchange: {}", ORDER_DLX);
+        return ExchangeBuilder
+                .directExchange(ORDER_DLX)
+                .durable(true)
+                .build();
+    }
+    
+    /**
+     * Fila principal com Dead Letter e TTL
+     */
+    @Bean
+    public Queue orderCreatedQueue() {
+        log.info("📥 Criando queue: {} (TTL: {}ms, MaxLen: {})",
+                ORDER_CREATED_QUEUE, MESSAGE_TTL_MS, MAX_QUEUE_LENGTH);
+        
+        return QueueBuilder
+                .durable(ORDER_CREATED_QUEUE)
+                // Dead Letter config
+                .withArgument("x-dead-letter-exchange", ORDER_DLX)
+                .withArgument("x-dead-letter-routing-key", ORDER_CREATED_DLQ)
+                // TTL
+                .withArgument("x-message-ttl", MESSAGE_TTL_MS)
+                // Max length para evitar crescimento infinito
+                .withArgument("x-max-length", MAX_QUEUE_LENGTH)
+                // Overflow behavior
+                .withArgument("x-overflow", "reject-publish")
+                .build();
+    }
+    
+    /**
+     * Dead Letter Queue - persistência permanente
+     */
+    @Bean
+    public Queue orderCreatedDeadLetterQueue() {
+        log.info("☠️ Criando Dead Letter Queue: {}", ORDER_CREATED_DLQ);
+        return QueueBuilder
+                .durable(ORDER_CREATED_DLQ)
+                .build();
+    }
+    
+    /**
+     * Bindings - conecta exchanges e queues
+     */
+    @Bean
+    public Binding orderCreatedBinding(
+            Queue orderCreatedQueue,
+            TopicExchange orderExchange) {
+        log.info("🔗 Binding {} -> {} (key: {})",
+                ORDER_EXCHANGE, ORDER_CREATED_QUEUE, ORDER_CREATED_ROUTING_KEY);
+        
+        return BindingBuilder
+                .bind(orderCreatedQueue)
+                .to(orderExchange)
+                .with(ORDER_CREATED_ROUTING_KEY);
+    }
+    
+    @Bean
+    public Binding deadLetterBinding(
+            Queue orderCreatedDeadLetterQueue,
+            DirectExchange deadLetterExchange) {
+        return BindingBuilder
+                .bind(orderCreatedDeadLetterQueue)
+                .to(deadLetterExchange)
+                .with(ORDER_CREATED_DLQ);
+    }
+    
+    /**
+     * Converter JSON - usa Jackson para serialização
+     */
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+    
+    /**
+     * RabbitTemplate customizado com retry e confirmações
+     */
+    @Bean
+    public RabbitTemplate rabbitTemplate(
+            ConnectionFactory connectionFactory,
+            MessageConverter messageConverter) {
+        
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(messageConverter);
+        
+        // Publisher Confirms
+        template.setMandatory(true);
+        template.setConfirmCallback((correlationData, ack, cause) -> {
+            if (!ack) {
+                log.error("❌ Mensagem não confirmada: {}", cause);
+            }
+        });
+        
+        // Return callback para mensagens não roteáveis
+        template.setReturnsCallback(returned -> {
+            log.error("⚠️ Mensagem retornada - Não roteável: {}",
+                    returned.getMessage());
+        });
+        
+        // Retry template
+        RetryTemplate retryTemplate = new RetryTemplate();
+        ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
+        backOffPolicy.setInitialInterval(1000);
+        backOffPolicy.setMultiplier(2.0);
+        backOffPolicy.setMaxInterval(10000);
+        retryTemplate.setBackOffPolicy(backOffPolicy);
+        
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(3);
+        retryTemplate.setRetryPolicy(retryPolicy);
+        
+        template.setRetryTemplate(retryTemplate);
+        
+        return template;
+    }
+}
+```
           multiplier: 2.0
 ```
 
